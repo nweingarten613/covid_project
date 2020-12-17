@@ -1,0 +1,35 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(usmap)
+```
+
+
+```{r}
+covid_state <- read.csv("all-states-history.csv")
+```
+
+```{r}
+positivity <- covid_state %>%
+  select(date, state, positive, totalTestResults) %>%
+  mutate(posRate = positive / totalTestResults)
+
+positivity_recent <- head(positivity, 56)
+positivity_recent <- positivity_recent %>%
+  filter(!state %in% c("AS", "DC", "GU", "MP", "PR", "VI"))
+
+positivity_recent %>%
+  arrange(desc(posRate)) %>%
+  head()
+```
+
+```{r}
+plot_usmap(data = positivity_recent, values = "posRate", color = 'red') +
+  scale_fill_continuous(low = 'white', high = 'blue', name = 'Positivity Rate', label = scales::comma) +
+  theme(legend.position = 'right')
+```
+
